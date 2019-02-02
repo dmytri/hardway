@@ -1,0 +1,16 @@
+#!/bin/sh
+
+#
+# generate certs
+#
+
+[ -d _build ] || mkdir _build
+
+cfssl gencert -initca conf/ca-csr.json | cfssljson -bare _build/ca
+
+cfssl gencert \
+  -ca=_build/ca.pem \
+  -ca-key=_build/ca-key.pem \
+  -config=conf/ca-config.json \
+  -profile=kubernetes \
+  conf/kubernetes-csr.json | cfssljson -bare _build/kubernetes
