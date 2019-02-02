@@ -1,0 +1,18 @@
+#!/bin/bash
+
+startvirt
+
+sleep 5
+
+sudo virsh start "etcd1"
+sudo virsh start "etcd2"
+sudo virsh start "etcd3"
+sudo virsh start "controller1"
+sudo virsh start "controller2"
+sudo virsh start "worker1"
+sudo virsh start "worker2"
+sudo virsh start "lb1"
+sudo virsh start "lb2"
+
+
+
