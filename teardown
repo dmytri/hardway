@@ -1,15 +1,29 @@
 #!/bin/bash
 
-function destroyvm {
-  sudo virsh destroy "$1"
+#
+# undefine vms
+#
+
+function undefinevm {
+
+  echo undefining $1 $2 $3
+
+  sudo virsh net-update Kubernetes delete ip-dhcp-host \
+    "<host mac='aa:aa:aa:aa:aa:$3' \
+     name='$1' ip='$2' />" \
+     --live --config
+
+  sudo virsh undefine "$1"
+
 }
 
-destroyvm "etcd1"
-destroyvm "etcd2"
-destroyvm "etcd3"
-destroyvm "controller1"
-destroyvm "controller2"
-destroyvm "worker1"
-destroyvm "worker2"
-destroyvm "lb1"
-destroyvm "lb2"
+undefinevm "etcd1" "10.240.0.11" "e1"
+undefinevm "etcd2" "10.240.0.12" "e2"
+undefinevm "etcd3" "10.240.0.13" "e3"
+undefinevm "controller1" "10.240.0.21" "c1"
+undefinevm "controller2" "10.240.0.22" "c2"
+undefinevm "worker1" "10.240.0.31" "a1"
+undefinevm "worker2" "10.240.0.32" "a2"
+undefinevm "lb1" "10.240.0.41" "b1"
+undefinevm "lb2" "10.240.0.42" "b2"
+

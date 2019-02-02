@@ -1,8 +1,8 @@
 #!/bin/bash
 
-startvirt
-
-sleep 5
+#
+# start vms
+#
 
 sudo virsh start "etcd1"
 sudo virsh start "etcd2"
