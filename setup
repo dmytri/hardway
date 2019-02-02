@@ -1,6 +1,12 @@
 #!/bin/sh
 
 #
+# copy public ssh key
+#
+
+cp ~/.ssh/id_rsa.pub _build/id_rsa.pub
+
+#
 # generate certs
 #
 
