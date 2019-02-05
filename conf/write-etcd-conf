@@ -1,0 +1,24 @@
+ETCD_NAME=$(hostname -s)
+
+cat <<EOF | sudo tee /etc/etcd/etcd.conf
+[member]
+ETCD_NAME="${ETCD_NAME}"
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+ETCD_LISTEN_PEER_URLS="https://${INTERNAL_IP}:2380"
+ETCD_LISTEN_CLIENT_URLS="https://${INTERNAL_IP}:2379,https://127.0.0.1:2379"
+[cluster]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="https://${INTERNAL_IP}:2380"
+ETCD_INITIAL_CLUSTER="etcd1=https://10.240.0.11:2380,etcd2=https://10.240.0.12:2380,etcd3=https://10.240.0.13:2380"
+ETCD_INITIAL_CLUSTER_STATE="new"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster-0"
+ETCD_ADVERTISE_CLIENT_URLS="https://${INTERNAL_IP}:2379"
+[security]
+ETCD_CERT_FILE="/etc/etcd/kubernetes.pem"
+ETCD_KEY_FILE="/etc/etcd/kubernetes-key.pem"
+ETCD_CLIENT_CERT_AUTH="true"
+ETCD_TRUSTED_CA_FILE="/etc/etcd/ca.pem"
+ETCD_PEER_CERT_FILE="/etc/etcd/kubernetes.pem"
+ETCD_PEER_KEY_FILE="/etc/etcd/kubernetes-key.pem"
+ETCD_PEER_CLIENT_CERT_AUTH="true"
+ETCD_PEER_TRUSTED_CA_FILE="/etc/etcd/ca.pem"
+EOF

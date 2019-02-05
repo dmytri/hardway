@@ -1,0 +1,8 @@
+#!/bin/bash
+
+etcdctl \
+  --ca-file /etc/etcd/ca.pem \
+  --cert-file /etc/etcd/kubernetes.pem \
+  --key-file /etc/etcd/kubernetes-key.pem \
+  --endpoints https://127.0.0.1:2379 \
+  cluster-health
