@@ -8,6 +8,8 @@ function undefinevm {
 
   echo undefining $1 $2 $3
 
+  sudo virsh destroy "$1"
+
   sudo virsh net-update Kubernetes delete ip-dhcp-host \
     "<host mac='aa:aa:aa:aa:aa:$3' \
      name='$1' ip='$2' />" \

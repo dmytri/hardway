@@ -9,6 +9,9 @@ PASSWORD=$(pass show "$PASS" | tr -d '\n') || exit 1
 
 NETWORK="Kubernetes"
 
+SSH="ssh -o StrictHostKeyChecking=no"
+SCP="scp -o StrictHostKeyChecking=no"
+
 #
 # copy public ssh key
 #
@@ -29,6 +32,8 @@ cfssl gencert \
   -config=conf/ca-config.json \
   -profile=kubernetes \
   conf/kubernetes-csr.json | cfssljson -bare _build/kubernetes
+
+chmod a+r _build/kubernetes-key.pem
 
 #
 # make base vms
@@ -59,13 +64,14 @@ function mkvm {
      conf/hosts \
      /etc/
 
-    virt-copy-in \
-      -a "$IMG" \
-     _build/ca.pem \
-     _build/kubernetes-key.pem \
-     _build/kubernetes.pem \
-     /root/
   fi
+
+  virt-copy-in \
+    -a "$IMG" \
+   _build/ca.pem \
+   _build/kubernetes-key.pem \
+   _build/kubernetes.pem \
+   /root/
 
 }
 
@@ -87,6 +93,9 @@ function installvirt {
      name='$1' ip='$4' />" \
      --live --config
 
+  sudo virt-sysprep -a _build/vm_"$1".qcow2 --hostname "$1" \
+    --ssh-inject root:file:_build/id_rsa.pub
+
   sudo virt-install \
     --name "$1" \
     --cpu host \
@@ -100,11 +109,32 @@ function installvirt {
     --noautoconsole \
     --import
 
-  sudo virsh destroy "$1"
+  case $1 in
+        etcd1|etcd2|etcd3)       
+          echo etcd "$4"
+          while ! $SSH root@$4 echo "UP"
+          do
+            sleep 1
+          done
+          $SCP conf/etcd-health-check root@$4:
+          $SCP conf/write-etcd-conf root@$4:
+          $SSH root@$4 <<EOF
+yes | dnf install etcd
+[ -d /etc/etcd ] || mkdir -p /etc/etcd
+[ -f ~/etcd.conf.save ] || cp /etc/etcd/etcd.conf ~/etcd.conf.save
+cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
+INTERNAL_IP='$4' bash ~/write-etcd-conf
 
-  sudo virt-sysprep -d "$1" --hostname "$1" \
-    --ssh-inject root:file:_build/id_rsa.pub
+sudo systemctl enable etcd
+EOF
+        ;;
+        controller1|controller2)
+          echo controller "$4"
+        ;;            
+  esac 
 
+  sudo virsh shutdown "$1"
+  
 }
 
 installvirt "etcd1" 512 "kube" "10.240.0.11" "e1"
@@ -116,4 +146,5 @@ installvirt "worker1" 1024 "kube-worker" "10.240.0.31" "a1"
 installvirt "worker2" 1024 "kube-worker" "10.240.0.32" "a2"
 installvirt "lb1" 512 "kube" "10.240.0.41" "b1"
 installvirt "lb2" 512 "kube" "10.240.0.42" "b2"
+
 

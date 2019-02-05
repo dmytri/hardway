@@ -4,16 +4,16 @@
 # stop vms
 #
 
-function destroyvm {
-  sudo virsh destroy "$1"
+function shutdownvm {
+  sudo virsh shutdown "$1"
 }
 
-destroyvm "etcd1"
-destroyvm "etcd2"
-destroyvm "etcd3"
-destroyvm "controller1"
-destroyvm "controller2"
-destroyvm "worker1"
-destroyvm "worker2"
-destroyvm "lb1"
-destroyvm "lb2"
+shutdownvm "etcd1"
+shutdownvm "etcd2"
+shutdownvm "etcd3"
+shutdownvm "controller1"
+shutdownvm "controller2"
+shutdownvm "worker1"
+shutdownvm "worker2"
+shutdownvm "lb1"
+shutdownvm "lb2"
