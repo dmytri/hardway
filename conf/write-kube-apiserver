@@ -1,0 +1,9 @@
+cat <<EOF | sudo tee  /etc/kubernetes/apiserver
+KUBE_API_ADDRESS="--advertise-address=${INTERNAL_IP} --insecure-bind-address=127.0.0.1 --bind-address=0.0.0.0 --enable-swagger-ui=true --runtime-config=api/all --kubelet-https=true"
+KUBE_API_PORT="--service-node-port-range=30000-32767"
+KUBE_ETCD_SERVERS="--etcd-servers=https://10.240.0.11:2379,https://10.240.0.12:2379,https://10.240.0.13:2379"
+KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=10.32.0.0/24"
+KUBE_ADMISSION_CONTROL="--authorization-mode=Node,RBAC --enable-admission-plugins=Initializers,NamespaceLifecycle,NodeRestriction,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota --experimental-encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml --event-ttl=1h"
+KUBE_API_ARGS="--client-ca-file=/var/lib/kubernetes/ca.pem --etcd-cafile=/var/lib/kubernetes/ca.pem --etcd-certfile=/var/lib/kubernetes/kubernetes.pem --etcd-keyfile=/var/lib/kubernetes/kubernetes-key.pem --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem --kubelet-client-certificate=/var/lib/kubernetes/kubernetes.pem --kubelet-client-key=/var/lib/kubernetes/kubernetes-key.pem --service-account-key-file=/var/lib/kubernetes/kubernetes-key.pem --tls-cert-file=/var/lib/kubernetes/kubernetes.pem --tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem"
+EOF
+
